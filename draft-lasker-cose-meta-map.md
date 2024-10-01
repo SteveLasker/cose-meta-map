@@ -63,7 +63,7 @@ However the COSE meta-map is intentionally constrained to key/value (string:stri
 
 Given the following JavaScript instance:
 
-~~~json
+~~~
 new Map( [ ['k1', 'v1'], ['k2', 'v2'] ] )
 ~~~
 
