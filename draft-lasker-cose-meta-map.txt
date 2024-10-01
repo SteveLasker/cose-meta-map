@@ -1,0 +1,193 @@
+
+
+
+
+CBOR Object Signing and Encryption                             S. Lasker
+Internet-Draft                                                DataTrails
+Intended status: Informational                            1 October 2024
+Expires: 4 April 2025
+
+
+                       lasker-draft-cose-meta-map
+                   draft-lasker-cose-meta-map-latest
+
+Abstract
+
+   This document specifies a tag for a collection of key/value pairs in
+   CBOR Representation, providing metadata in COSE headers.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://SteveLasker.github.io/draft-lasker-meta-map/draft-lasker-
+   cose-meta-map.html.  Status information for this document may be
+   found at https://datatracker.ietf.org/doc/draft-lasker-cose-meta-
+   map/.
+
+   Discussion of this document takes place on the CBOR Object Signing
+   and Encryption Working Group mailing list (mailto:cose@ietf.org),
+   which is archived at https://mailarchive.ietf.org/arch/browse/cose/.
+   Subscribe at https://www.ietf.org/mailman/listinfo/cose/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/SteveLasker/draft-lasker-meta-map.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 4 April 2025.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Examples
+   2.  Conventions and Definitions
+   3.  Security Considerations
+   4.  IANA Considerations
+   5.  References
+     5.1.  Normative References
+     5.2.  Informative References
+   Acknowledgments
+   Author's Address
+
+1.  Introduction
+
+   [RFC9052] provides integrity protection for attached, detached and
+   hashed payloads that may be shared between parties.  As a COSE
+   Envelope is shared, stored and indexed, additional metadata may be
+   required to provide context to the attached, detached or hashed
+   protected content.
+
+   Section 5.1 of [RFC9052] supports protected and unprotected headers
+   (https://www.rfc-editor.org/rfc/rfc9052#header-parameters) which
+   supports additional labels, however the labels in each of the maps
+   MUST be unique.  When processing messages, if a label appears
+   multiple times, the message MUST be rejected as malformed, making a
+   collection of string keys an invalid COSE structure.
+
+   COSE meta-map provides a CBOR map of key/value string pairs in CBOR
+   Representation.  Consideration was give to registering CBOR
+   [LABEL.259] as a COSE header.  However the COSE meta-map is
+   intentionally constrained to key/value (string:string) pairs,
+   providing metadata support within the COSE Headers, while not
+   attempting to duplicate a COSE Payload.
+
+1.1.  Examples
+
+   Given the following JavaScript instance:
+
+   new Map( [ ['k1', 'v1'], ['k2', 'v2'] ] )
+
+   The equivalent value as a set in CBOR diagnostic notation is:
+
+   metamap = {
+     TBD({"k1": "v1", "k2": "v2"})
+   }
+
+   The equivalent value as a set in CBOR diagnostic notation is:
+
+   D9 0103       # tag(meta-map)
+     A2         # map(2)
+         62      # text(2)
+           6B31 # "k1"
+         62      # text(2)
+           7631 # "v1"
+         62      # text(2)
+           6B32 # "k2"
+         62      # text(2)
+           7632 # "v2"
+
+   A COSE Envelope, with a protected header referencing the above
+   metamap:
+
+   COSE_Sign1 = [
+     protected   : bstr .cbor Protected_Header,
+     unprotected : Unprotected_Header,
+     payload     : bstr / nil,
+     signature   : bstr
+   ]
+
+   Protected_Header = {
+     ? &(alg: 1) => int
+     ? &(content_type: 3) => tstr / uint
+     ? &(metamap: TBD) => metamap
+   }
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  Security Considerations
+
+   TODO Security
+
+4.  IANA Considerations
+
+   This document has no IANA actions.
+
+5.  References
+
+5.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC9052]  Schaad, J., "CBOR Object Signing and Encryption (COSE):
+              Structures and Process", STD 96, RFC 9052,
+              DOI 10.17487/RFC9052, August 2022,
+              <https://www.rfc-editor.org/rfc/rfc9052>.
+
+5.2.  Informative References
+
+   [LABEL.259]
+              Holloway, S., "CBOR Label 259", 2018,
+              <https://github.com/shanewholloway/js-cbor-
+              codec/blob/master/docs/CBOR-259-spec--explicit-maps.md>.
+
+Acknowledgments
+
+   TODO acknowledge.
+
+Author's Address
+
+   Steve Lasker
+   DataTrails
+   Email: stevenlasker@hotmail.com
