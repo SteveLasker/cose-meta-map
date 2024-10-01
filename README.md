@@ -1,12 +1,11 @@
-# TODO - Your title
+# lasker-draft-cose-meta-map
 
-This is the working area for the individual Internet-Draft, "TODO - Your title".
+This is the working area for the individual Internet-Draft, "lasker-draft-cose-meta-map".
 
 * [Editor's Copy](https://SteveLasker.github.io/draft-lasker-meta-map/#go.draft-lasker-cose-meta-map.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-lasker-cose-meta-map)
 * [Individual Draft](https://datatracker.ietf.org/doc/html/draft-lasker-cose-meta-map)
 * [Compare Editor's Copy to Individual Draft](https://SteveLasker.github.io/draft-lasker-meta-map/#go.draft-lasker-cose-meta-map.diff)
-
 
 ## Contributing
 
@@ -15,7 +14,6 @@ See the
 
 Contributions can be made by creating pull requests.
 The GitHub interface supports creating pull requests using the Edit (✏) button.
-
 
 ## Command Line Usage
 
@@ -27,4 +25,3 @@ $ make
 
 Command line usage requires that you have the necessary software installed.  See
 [the instructions](https://github.com/martinthomson/i-d-template/blob/main/doc/SETUP.md).
-
