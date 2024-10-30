@@ -8,6 +8,9 @@ This document specifies a COSE header, containing a collection of key => value p
 The keys must be unique.
 When processing a meta-map, if a key appears multiple times, the message MUST be rejected as malformed.
 
+TODO:  
+Additional restrictions for characters within the keys, or possibly the values.
+
 ## Rationale
 
 [RFC9052](https://datatracker.ietf.org/doc/rfc9052/) provides integrity protection for attached, detached and hashed payloads that may be shared between parties.
