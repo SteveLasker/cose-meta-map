@@ -1,127 +1,92 @@
----
-title: "lasker-draft-cose-meta-map"
-abbrev: "cmm"
-category: info
+# cose-meta-map
 
-docname: draft-lasker-cose-meta-map-latest
-submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
-number:
-date:
-consensus: true
-v: 3
-area: "Security"
-workgroup: "CBOR Object Signing and Encryption"
-keyword:
- - cose
- - cbor
- - scitt
-venue:
-  group: "CBOR Object Signing and Encryption"
-  type: "Working Group"
-  mail: "cose@ietf.org"
-  arch: "https://mailarchive.ietf.org/arch/browse/cose/"
-  github: "SteveLasker/draft-lasker-meta-map"
-  latest: "https://SteveLasker.github.io/draft-lasker-meta-map/draft-lasker-cose-meta-map.html"
+This document specifies a COSE header, containing a collection of key => value pairs, providing interchangeable metadata in a COSE structure.
 
-author:
- -
-    fullname: "Steve Lasker"
-    organization: DataTrails
-    email: "stevenlasker@hotmail.com"
+- **Tag value**: `<TBD>`
+- **Data item**: Map (CBOR major type `5`)
+- **Semantics**: Contains a collection of `key => value` pairs, constrained to type tstr.
+The keys must be unique.
+When processing a meta-map, if a key appears multiple times, the message MUST be rejected as malformed.
 
-normative:
-  RFC9052: COSE
+## Rationale
 
-informative:
-  LABEL.259:
-    title: "CBOR Label 259"
-    target: https://github.com/shanewholloway/js-cbor-codec/blob/master/docs/CBOR-259-spec--explicit-maps.md
-    author:
-      name: Shane Holloway
-      org: ieee
-    date: 2018
+[RFC9052](https://datatracker.ietf.org/doc/rfc9052/) provides integrity protection for attached, detached and hashed payloads that may be shared between parties.
+As a COSE structure is shared, stored and indexed, additional metadata may be required providing context to the attached, detached or hashed protected content.
 
---- abstract
-
-This document specifies a tag for a collection of key/value pairs in CBOR Representation, providing metadata in COSE headers.
-
---- middle
-
-# Introduction
-
-{{RFC9052}} provides integrity protection for attached, detached and hashed payloads that may be shared between parties.
-As a COSE Envelope is shared, stored and indexed, additional metadata may be required to provide context to the attached, detached or hashed protected content.
-
-{{Section 5.1 of RFC9052}} supports protected and unprotected [headers](https://www.rfc-editor.org/rfc/rfc9052#header-parameters) which supports additional labels, however the labels in each of the maps MUST be unique.
-When processing messages, if a label appears multiple times, the message MUST be rejected as malformed, making a collection of string keys an invalid COSE structure.
-
-COSE meta-map provides a CBOR map of key/value string pairs in CBOR Representation.
-Consideration was give to registering CBOR {{LABEL.259}} as a COSE header.
-However the COSE meta-map is intentionally constrained to key/value (string:string) pairs, providing metadata support within the COSE Headers, while not attempting to duplicate a COSE Payload.
+[Section 3 of RFC9052](https://www.rfc-editor.org/rfc/rfc9052.html#name-header-parameters) supports additional labels (`* labels => values`) in the protected and unprotected [headers](https://www.rfc-editor.org/rfc/rfc9052#header-parameters).
+The `meta-map` provides a structure of metadata within the headers, enabling interoperability between parties sharing a COSE structure.
 
 ## Examples
 
-Given the following JavaScript instance:
-
-~~~
-new Map( [ ['k1', 'v1'], ['k2', 'v2'] ] )
-~~~
-
-The equivalent value as a set in CBOR diagnostic notation is:
-
-~~~cbor
-metamap = {
-  TBD({"k1": "v1", "k2": "v2"})
+A collection of vCon properties, enabling interchange of metadata about a protected [cose-hash-envelope](https://datatracker.ietf.org/doc/draft-ietf-cose-hash-envelope/)
+~~~json
+{
+  "meta-map": {
+    "conserver_link": "scitt",
+    "conserver_link_version": "0.2.0",
+    "timestamp_declared": "2024-05-07T16:33:29.004994",
+    "vcon_operation": "vcon_create",
+    "vcon_draft_version": "01"
+    }
 }
 ~~~
 
-The equivalent value as a set in CBOR diagnostic notation is:
-
-~~~cbor-diag
-D9 0103       # tag(meta-map)
-  A2         # map(2)
-      62      # text(2)
-        6B31 # "k1"
-      62      # text(2)
-        7631 # "v1"
-      62      # text(2)
-        6B32 # "k2"
-      62      # text(2)
-        7632 # "v2"
-~~~
-
-A COSE Envelope, with a protected header referencing the above metamap:
+**CDDL**
 
 ~~~cddl
 COSE_Sign1 = [
   protected   : bstr .cbor Protected_Header,
-  unprotected : Unprotected_Header,
+  unprotected : bstr .cbor Unprotected_Header,
   payload     : bstr / nil,
   signature   : bstr
 ]
 
 Protected_Header = {
   ? &(alg: 1) => int
-  ? &(content_type: 3) => tstr / uint
-  ? &(metamap: TBD) => metamap
+  ? &(payload_hash_alg: -6800) => int
+  ? &(payload_preimage_content_type: -6802) => tstr / uint
+  ? &(payload_location: -6801) => tstr
+  ? &(meta-map: TBD_1) => meta-map
+}
+
+Unprotected_Header = {
+  * int => any
 }
 ~~~
 
-# Conventions and Definitions
+### Alternatives Considered
 
-{::boilerplate bcp14-tagged}
+It's possible to embed the metadata within the payload:
 
-# Security Considerations
+```cddl
+payload = {
+    "meta-map":  { tstr => tstr},
+    payload: bstr
+}
+```
 
-TODO Security
+However this forces consumers to understand the modified COSE structure.
+Providing the optional meta-map header, middleware can choose to consume or ignore the header as the a producing and relying party may need to understand metadata about the payload.
 
-# IANA Considerations
+## References
 
-This document has no IANA actions.
+- [RFC9052](https://datatracker.ietf.org/doc/rfc9052/): COSE
 
---- back
+- Label.259  
+Consideration was give to registering [CBOR LABEL.259](https://github.com/shanewholloway/js-cbor-codec/blob/master/docs/CBOR-259-spec--explicit-maps.md) as a COSE header.
+However the COSE meta-map is intentionally constrained to (`key:tstr => value:tstr`) pairs, providing metadata support within the COSE Headers, while not attempting to duplicate a COSE Payload.
 
-# Acknowledgments
-{:numbered="false"}
+## Implementations
 
-TODO acknowledge.
+[DataTrails](https://www.datatrails.ai/), [Strolid](https://strolid.com/), [vConGPT](https://vcongpt.com/)
+
+Used as to interchange metadata between a vCon and a SCITT Ledger, providing integrity and inclusion protection of vCons.
+
+vCons are typically large as they contain recordings and attachments, and may contain PII information which must be capable of being forgotten.
+The proof a vCon was shared, consumed, consent provided and subsequent revocation of consent is recorded on a SCITT ledger.
+The metadata enables the storing of enough information in DataTrails, recorded on a SCITT Ledger to verify the integrity, inclusion and intent of the vCon, while not storing any PII information that must be forgotten.
+
+## Author
+
+Steve Lasker ([DataTrails](https://www.datatrails.ai/))  
+stevenlasker@hotmail.com
