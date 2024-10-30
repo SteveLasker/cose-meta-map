@@ -2,7 +2,7 @@
 
 This document specifies a COSE header, containing a collection of key => value pairs, providing interchangeable metadata in a COSE structure.
 
-- **Tag value**: `<TBD>`
+- **Label**: `<TBD>`
 - **Data item**: Map (CBOR major type `5`)
 - **Semantics**: Contains a collection of `key => value` pairs, constrained to type tstr.
 The keys must be unique.
