@@ -19,6 +19,7 @@ The `meta-map` provides a structure of metadata within the headers, enabling int
 ## Examples
 
 A collection of vCon properties, enabling interchange of metadata about a protected [cose-hash-envelope](https://datatracker.ietf.org/doc/draft-ietf-cose-hash-envelope/)
+
 ~~~json
 {
   "meta-map": {
