@@ -64,7 +64,7 @@ It's possible to embed the metadata within the payload:
 
 ```cddl
 payload = {
-    "meta-map":  { tstr => tstr},
+    "meta-map":  { * tstr => tstr},
     payload: bstr
 }
 ```
